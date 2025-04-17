@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>England v Fiji Ticket Form</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .banner {
+        background-image: url('https://mikeburton-live-media.hosting.inspiretec.com/media/xhqpktfo/eng-v-nz-9.jpg?mode=Crop&quality=80&width=1760&rxy=0.5,0.5&rnd=638745392803170000');
+        background-size: cover;
+        background-position: top;
+        aspect-ratio: 16 / 5;
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        color: white;
+        font-size: 4vw;
+        font-weight: bold;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+        border-radius: 8px;
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      label {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 5px;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      @media (max-width: 480px) {
+        .banner {
+          font-size: 6vw;
+          padding-bottom: 20px;
+        }
+        input,
+        button {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">England v Fiji - 8 November</div>
+      <div id="formWrapper">
+        <form id="ticketForm">
+          <label for="ticketCount">How many tickets?</label>
+          <input id="ticketCount" type="number" min="1" max="10" required />
+          <div id="ticketFields"></div>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('ticketCount').addEventListener('change', generateFields);
+      document.getElementById('ticketForm').addEventListener('submit', handleSubmit);
+
+      function generateFields() {
+        const count = parseInt(document.getElementById('ticketCount').value, 10);
+        const container = document.getElementById('ticketFields');
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+          container.innerHTML += `
+            <div style="margin-bottom: 20px;">
+              <h4>Ticket ${i + 1}</h4>
+              <label>Name:</label>
+              <input name="name${i}" required />
+              <label>Email:</label>
+              <input name="email${i}" type="email" required />
+            </div>
+          `;
+        }
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        const count = parseInt(document.getElementById('ticketCount').value, 10);
+        const tickets = [];
+
+        for (let i = 0; i < count; i++) {
+          tickets.push({
+            name: e.target[`name${i}`].value,
+            email: e.target[`email${i}`].value,
+          });
+        }
+
+        fetch('https://script.google.com/macros/s/AKfycbwG0lE9OKyvDP_jES1kf1rSKbZjnwMaZjsHEUtNe99fdHOzxqrklV6iAQc5zpYIhmJ-kg/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tickets })
+        })
+        .then(() => {
+          document.getElementById('formWrapper').innerHTML = `
+            <h2>Thank you!</h2>
+            <p>Your ticket details have been submitted successfully. You will receive a confirmation email shortly.</p>
+          `;
+        })
+        .catch((err) => {
+          alert('Something went wrong. Please try again later.');
+          console.error(err);
+        });
+      }
+    </script>
+  </body>
+</html>
