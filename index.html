@@ -121,21 +121,24 @@
           });
         }
 
-        fetch('https://script.google.com/macros/s/AKfycbz0WyFzpB8Wu6eUyGUp37iK_fJH3e6znarUV7ZFH1KNrQKZjx48l8_nymal_XfzgCZt8g/exec', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tickets })
-        })
-        .then(() => {
-          document.getElementById('formWrapper').innerHTML = `
-            <h2>Thank you!</h2>
-            <p>Your ticket details have been submitted successfully. You will receive a confirmation email shortly.</p>
-          `;
-        })
-        .catch((err) => {
-          alert('Something went wrong. Please try again later.');
-          console.error(err);
-        });
+        fetch('https://script.google.com/macros/s/AKfycbwV-hVPbM4jP0_K9ea8iLvVTtSF-pOCpxfOLy21UmVoyutZhQPLHECT5KEC_J4PWrgu/exec', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
+          })
+          .then(() => {
+            document.getElementById('formWrapper').innerHTML = `
+              <h2>Thank you!</h2>
+              <p>Your ticket details have been submitted successfully.</p>
+            `;
+          })
+          .catch((err) => {
+            alert('Something went wrong.');
+            console.error(err);
+          });
+          
       }
     </script>
   </body>
