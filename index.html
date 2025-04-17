@@ -1,88 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>England v Fiji Ticket Form</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f7f7f7;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-      .banner {
-        background-image: url('https://mikeburton-live-media.hosting.inspiretec.com/media/xhqpktfo/eng-v-nz-9.jpg?mode=Crop&quality=80&width=1760&rxy=0.5,0.5&rnd=638745392803170000');
-        background-size: cover;
-        background-position: top;
-        aspect-ratio: 16 / 5;
-        width: 100%;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        color: white;
-        font-size: 4vw;
-        font-weight: bold;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
-        border-radius: 8px;
-        padding-bottom: 30px;
-        margin-bottom: 30px;
-        text-align: center;
-      }
-      label {
-        font-weight: 500;
-        display: block;
-        margin-bottom: 5px;
-      }
-      input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-      }
-      button {
-        width: 100%;
-        padding: 12px;
-        font-size: 16px;
-        background-color: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
-      @media (max-width: 480px) {
-        .banner {
-          font-size: 6vw;
-          padding-bottom: 20px;
-        }
-        input,
-        button {
-          font-size: 16px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="banner">England v Fiji - 8 November</div>
+<div class="banner">England v Fiji - 8 November</div>
+      <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5;">
+        We are pleased to be able to arrange a trip to HQ to watch England play Fiji on November 8th. Please complete the details for each ticket request on the form below. Junior tickets are <strong>£15</strong> and adult tickets are <strong>£70</strong>. Coach travel is <strong>£20 per person</strong>. <strong>We would like payment made by <span style='color: darkred;'>26th April</span></strong> in order to secure the tickets. in order to secure the tickets.
+      </p>
       <div id="formWrapper">
         <form id="ticketForm">
+          <label for="primaryEmail">Primary Ticket Holder Email:</label>
+          <input id="primaryEmail" type="email" required />
+
           <label for="ticketCount">How many tickets?</label>
           <input id="ticketCount" type="number" min="1" max="10" required />
+
           <div id="ticketFields"></div>
+
+          <label for="comments">Additional Comments:</label>
+          <textarea id="comments" rows="4"></textarea>
+
           <button type="submit">Submit</button>
         </form>
       </div>
@@ -98,48 +30,71 @@
         container.innerHTML = '';
         for (let i = 0; i < count; i++) {
           container.innerHTML += `
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 20px;" data-ticket-index="${i}">
               <h4>Ticket ${i + 1}</h4>
               <label>Name:</label>
               <input name="name${i}" required />
-              <label>Email:</label>
-              <input name="email${i}" type="email" required />
+              <label>Age:</label>
+              <input name="age${i}" type="number" min="0" required oninput="toggleResponsible(${i})" />
+              <div id="responsibleWrapper${i}" style="display:none;">
+                <label>Responsible Adult:</label>
+                <input name="responsible${i}" />
+              </div>
+              <label>Coach:</label>
+              <select name="coach${i}">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
             </div>
           `;
+        }
+      }
+
+      function toggleResponsible(index) {
+        const ageInput = document.querySelector(`[name='age${index}']`);
+        const wrapper = document.getElementById(`responsibleWrapper${index}`);
+        if (parseInt(ageInput.value, 10) < 18) {
+          wrapper.style.display = 'block';
+        } else {
+          wrapper.style.display = 'none';
         }
       }
 
       function handleSubmit(e) {
         e.preventDefault();
         const count = parseInt(document.getElementById('ticketCount').value, 10);
+        const primaryEmail = document.getElementById('primaryEmail').value;
+        const comments = document.getElementById('comments').value;
         const tickets = [];
 
         for (let i = 0; i < count; i++) {
           tickets.push({
             name: e.target[`name${i}`].value,
-            email: e.target[`email${i}`].value,
+            age: e.target[`age${i}`].value,
+            responsible: e.target[`responsible${i}`]?.value || '',
+            coach: e.target[`coach${i}`].value,
+            primaryEmail,
+            comments
           });
         }
 
-        fetch('https://script.google.com/macros/s/AKfycbyGNgNqmAXej2jewKw_Q3rdjvZOskM8I4icX2__t2Jvamh5hj-PEH45a-CqUo1BtmT6Yw/exec', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
-          })
-          .then(() => {
-            document.getElementById('formWrapper').innerHTML = `
-              <h2>Thank you!</h2>
-              <p>Your ticket details have been submitted successfully. You will receive a confirmation email shortly.</p>
-            `;
-          })
-          .catch((err) => {
-            alert('Something went wrong. Please try again.');
-            console.error('Fetch error:', err);
-          });
-          
-          
+        fetch('https://script.google.com/macros/s/AKfycbwDIvN1C8fKpIU-gues_-uLlxcVOqczwr8_Cb4mSQQ_Bh2Q32RtC27VpXdyxzzQ9EP46g/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
+        })
+        .then(() => {
+          document.getElementById('formWrapper').innerHTML = `
+            <h2>Thank you!</h2>
+            <p>Your ticket details have been submitted successfully.</p>
+          `;
+        })
+        .catch((err) => {
+          alert('Something went wrong. Please try again later.');
+          console.error(err);
+        });
       }
     </script>
   </body>
