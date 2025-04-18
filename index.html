@@ -171,7 +171,7 @@
 
         alert(`Total cost: £${total}`);
 
-        fetch('https://script.google.com/macros/s/AKfycbwDIvN1C8fKpIU-gues_-uLlxcVOqczwr8_Cb4mSQQ_Bh2Q32RtC27VpXdyxzzQ9EP46g/exec', {
+        fetch('https://script.google.com/macros/s/AKfycbysRSGHSH5ylcr8anItAKzMoQbDj-DpZR41s4cH0H6-awqxDRzBdpchwiMDz071QgXxvQ/exec', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -182,6 +182,15 @@
           document.getElementById('formWrapper').innerHTML = `
             <h2>Thank you!</h2>
             <p>Your ticket details have been submitted successfully.</p>
+            <p><strong>Total cost: £${total}</strong></p>
+<p><strong>Payment deadline: <span style='color: darkred;'>26th April</span></strong></p>
+            <p>Please make payment to the following account:</p>
+            <ul>
+              <li><strong>Account Name:</strong> RFU Club Travel</li>
+              <li><strong>Sort Code:</strong> 12-34-56</li>
+              <li><strong>Account Number:</strong> 12345678</li>
+              <li><strong>Reference:</strong> Your Name</li>
+            </ul>
           `;
         })
         .catch((err) => {
