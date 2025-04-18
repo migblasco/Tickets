@@ -146,17 +146,30 @@
         const primaryEmail = document.getElementById('primaryEmail').value;
         const comments = document.getElementById('comments').value;
         const tickets = [];
+        let total = 0;
 
         for (let i = 0; i < count; i++) {
+          const age = parseInt(e.target[`age${i}`].value, 10);
+          const coach = e.target[`coach${i}`].value;
+          const ticketPrice = age < 18 ? 15 : 70;
+          const coachPrice = coach === 'Yes' ? 20 : 0;
+
+          total += ticketPrice + coachPrice;
+
           tickets.push({
             name: e.target[`name${i}`].value,
-            age: e.target[`age${i}`].value,
+            age: age,
             responsible: e.target[`responsible${i}`]?.value || '',
-            coach: e.target[`coach${i}`].value,
+            coach: coach,
             primaryEmail,
-            comments
+            comments,
+            ticketPrice,
+            coachPrice,
+            totalPerPerson: ticketPrice + coachPrice
           });
         }
+
+        alert(`Total cost: £${total}`);
 
         fetch('https://script.google.com/macros/s/AKfycbwDIvN1C8fKpIU-gues_-uLlxcVOqczwr8_Cb4mSQQ_Bh2Q32RtC27VpXdyxzzQ9EP46g/exec', {
           method: 'POST',
