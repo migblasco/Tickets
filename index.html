@@ -82,12 +82,6 @@
       <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5;">
         We are pleased to be able to arrange a trip to HQ to watch England play Fiji on November 8th. Please complete the details for each ticket request on the form below. Junior tickets are <strong>£15</strong> and adult tickets are <strong>£70</strong>. Coach travel is <strong>£20 per person</strong>. <strong>We would like payment made by <span style='color: darkred;'>26th April</span></strong> in order to secure the tickets.
       </p>
-      <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5;"><strong>Bank Details for Payment:</strong><br>
-        Account Name: Marlborough RFC<br>
-        Sort Code: 30-96-26<br>
-        Account Number: 34064960<br>
-        Reference: Your Name
-      </p>
       <div id="formWrapper">
         <form id="ticketForm">
           <label for="primaryEmail">Primary Ticket Holder Email:</label>
@@ -191,7 +185,18 @@
           body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
         })
         .then(() => {
-          document.getElementById('formWrapper').innerHTML = `\$1
+          document.getElementById('formWrapper').innerHTML = `
+            <h2>Thank you!</h2>
+            <p>Your ticket details have been submitted successfully.</p>
+            <p><strong>Total cost: £${total}</strong></p>
+            <p><strong>Payment deadline: <span style='color: darkred;'>26th April</span></strong></p>
+            <p>Please make payment to the following account:</p>
+            <ul>
+              <li><strong>Account Name:</strong> Marlborough RFC</li>
+              <li><strong>Sort Code:</strong> 30-96-26</li>
+              <li><strong>Account Number:</strong> 34064960</li>
+              <li><strong>Reference:</strong> Your Name</li>
+            </ul>
             <button onclick="generatePDF()" style="margin-top: 20px;">Download Summary (PDF)</button>`;
         })
         .catch((err) => {
@@ -208,19 +213,25 @@
         doc.text("England v Fiji - Ticket Summary", 10, y);
         y += 10;
 
-        const lines = document.getElementById('formWrapper').innerText.split('
-');
-        lines.forEach(line => {
-          if (line.trim()) {
-            doc.text(line.trim(), 10, y);
-            y += 8;
-          }
+        const thankYouText = [
+          "Your ticket details have been submitted successfully.",
+          "Payment deadline: 26th April",
+          "Total cost shown on screen.",
+          "",
+          "Bank Details:",
+          "Account Name: Marlborough RFC",
+          "Sort Code: 30-96-26",
+          "Account Number: 34064960",
+          "Reference: Your Name"
+        ];
+
+        thankYouText.forEach(line => {
+          doc.text(line, 10, y);
+          y += 8;
         });
 
         doc.save("ticket-summary.pdf");
       }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
       function toggleAgeField(index) {
         const ageFlag = document.querySelector(`[name='ageFlag${index}']`).value;
@@ -234,5 +245,7 @@
           responsibleWrapper.style.display = 'none';
         }
       }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </body>
 </html>
