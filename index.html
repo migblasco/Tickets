@@ -106,7 +106,121 @@
       </div>
     </div>
 
-    $1
+    <script>
+      document.getElementById('ticketCount').addEventListener('change', generateFields);
+      document.getElementById('ticketForm').addEventListener('submit', handleSubmit);
+
+      function generateFields() {
+        const count = parseInt(document.getElementById('ticketCount').value, 10);
+        const container = document.getElementById('ticketFields');
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+          container.innerHTML += `
+            <div style="margin-bottom: 20px;" data-ticket-index="${i}">
+              <h4>Ticket ${i + 1}</h4>
+              <label>Name:</label>
+              <input name="name${i}" required />
+              <label>Are you under 18?</label>
+              <select name="ageFlag${i}" onchange="toggleAgeField(${i})">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+              <div id="ageWrapper${i}" style="display:none;">
+                <label>Age:</label>
+                <input name="age${i}" type="number" min="0" oninput="toggleResponsible(${i})" />
+              </div>
+              <div id="responsibleWrapper${i}" style="display:none;">
+                <label>Responsible Adult:</label>
+                <input name="responsible${i}" />
+              </div>
+              <label>Coach:</label>
+              <select name="coach${i}">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          `;
+        }
+      }
+
+      function toggleResponsible(index) {
+        const ageInput = document.querySelector(`[name='age${index}']`);
+        const wrapper = document.getElementById(`responsibleWrapper${index}`);
+        if (parseInt(ageInput?.value, 10) < 18) {
+          wrapper.style.display = 'block';
+        } else {
+          wrapper.style.display = 'none';
+        }
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        const count = parseInt(document.getElementById('ticketCount').value, 10);
+        const primaryEmail = document.getElementById('primaryEmail').value;
+        const comments = document.getElementById('comments').value;
+        const tickets = [];
+        let total = 0;
+
+        for (let i = 0; i < count; i++) {
+          const isUnder18 = document.querySelector(`[name='ageFlag${i}']`).value === 'Yes';
+          const age = isUnder18 ? parseInt(document.querySelector(`[name='age${i}']`)?.value || 0, 10) : '';
+          const coach = document.querySelector(`[name='coach${i}']`).value;
+          const ticketPrice = isUnder18 ? 15 : 70;
+          const coachPrice = coach === 'Yes' ? 20 : 0;
+
+          total += ticketPrice + coachPrice;
+
+          tickets.push({
+            name: document.querySelector(`[name='name${i}']`).value,
+            age: age,
+            responsible: document.querySelector(`[name='responsible${i}']`)?.value || '',
+            coach: coach,
+            primaryEmail,
+            comments,
+            ticketPrice,
+            coachPrice,
+            totalPerPerson: ticketPrice + coachPrice
+          });
+        }
+
+        fetch('https://script.google.com/macros/s/AKfycbxnk5ypLfYyZpVrT-jUT3kz0ZV0YHNwJqTQdL6pTKc3mtC2KaHZ8YCJtbxA_V-xcnxJJg/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
+        })
+        .then(() => {
+          document.getElementById('formWrapper').innerHTML = `\$1
+            <button onclick="generatePDF()" style="margin-top: 20px;">Download Summary (PDF)</button>`;
+        })
+        .catch((err) => {
+          alert('Something went wrong. Please try again later.');
+          console.error(err);
+        });
+      }
+
+      function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 10;
+        doc.setFontSize(14);
+        doc.text("England v Fiji - Ticket Summary", 10, y);
+        y += 10;
+
+        const lines = document.getElementById('formWrapper').innerText.split('
+');
+        lines.forEach(line => {
+          if (line.trim()) {
+            doc.text(line.trim(), 10, y);
+            y += 8;
+          }
+        });
+
+        doc.save("ticket-summary.pdf");
+      }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
       function toggleAgeField(index) {
         const ageFlag = document.querySelector(`[name='ageFlag${index}']`).value;
