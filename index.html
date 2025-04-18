@@ -82,6 +82,12 @@
       <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5;">
         We are pleased to be able to arrange a trip to HQ to watch England play Fiji on November 8th. Please complete the details for each ticket request on the form below. Junior tickets are <strong>£15</strong> and adult tickets are <strong>£70</strong>. Coach travel is <strong>£20 per person</strong>. <strong>We would like payment made by <span style='color: darkred;'>26th April</span></strong> in order to secure the tickets.
       </p>
+      <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5;"><strong>Bank Details for Payment:</strong><br>
+        Account Name: Marlborough RFC<br>
+        Sort Code: 30-96-26<br>
+        Account Number: 34064960<br>
+        Reference: Your Name
+      </p>
       <div id="formWrapper">
         <form id="ticketForm">
           <label for="primaryEmail">Primary Ticket Holder Email:</label>
@@ -100,104 +106,19 @@
       </div>
     </div>
 
-    <script>
-      document.getElementById('ticketCount').addEventListener('change', generateFields);
-      document.getElementById('ticketForm').addEventListener('submit', handleSubmit);
+    $1
 
-      function generateFields() {
-        const count = parseInt(document.getElementById('ticketCount').value, 10);
-        const container = document.getElementById('ticketFields');
-        container.innerHTML = '';
-        for (let i = 0; i < count; i++) {
-          container.innerHTML += `
-            <div style="margin-bottom: 20px;" data-ticket-index="${i}">
-              <h4>Ticket ${i + 1}</h4>
-              <label>Name:</label>
-              <input name="name${i}" required />
-              <label>Age:</label>
-              <input name="age${i}" type="number" min="0" required oninput="toggleResponsible(${i})" />
-              <div id="responsibleWrapper${i}" style="display:none;">
-                <label>Responsible Adult:</label>
-                <input name="responsible${i}" />
-              </div>
-              <label>Coach:</label>
-              <select name="coach${i}">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-          `;
-        }
-      }
+      function toggleAgeField(index) {
+        const ageFlag = document.querySelector(`[name='ageFlag${index}']`).value;
+        const ageWrapper = document.getElementById(`ageWrapper${index}`);
+        const responsibleWrapper = document.getElementById(`responsibleWrapper${index}`);
 
-      function toggleResponsible(index) {
-        const ageInput = document.querySelector(`[name='age${index}']`);
-        const wrapper = document.getElementById(`responsibleWrapper${index}`);
-        if (parseInt(ageInput.value, 10) < 18) {
-          wrapper.style.display = 'block';
+        if (ageFlag === 'Yes') {
+          ageWrapper.style.display = 'block';
         } else {
-          wrapper.style.display = 'none';
+          ageWrapper.style.display = 'none';
+          responsibleWrapper.style.display = 'none';
         }
       }
-
-      function handleSubmit(e) {
-        e.preventDefault();
-        const count = parseInt(document.getElementById('ticketCount').value, 10);
-        const primaryEmail = document.getElementById('primaryEmail').value;
-        const comments = document.getElementById('comments').value;
-        const tickets = [];
-        let total = 0;
-
-        for (let i = 0; i < count; i++) {
-          const age = parseInt(e.target[`age${i}`].value, 10);
-          const coach = e.target[`coach${i}`].value;
-          const ticketPrice = age < 18 ? 15 : 70;
-          const coachPrice = coach === 'Yes' ? 20 : 0;
-
-          total += ticketPrice + coachPrice;
-
-          tickets.push({
-            name: e.target[`name${i}`].value,
-            age: age,
-            responsible: e.target[`responsible${i}`]?.value || '',
-            coach: coach,
-            primaryEmail,
-            comments,
-            ticketPrice,
-            coachPrice,
-            totalPerPerson: ticketPrice + coachPrice
-          });
-        }
-
-        alert(`Total cost: £${total}`);
-
-        fetch('https://script.google.com/macros/s/AKfycbysRSGHSH5ylcr8anItAKzMoQbDj-DpZR41s4cH0H6-awqxDRzBdpchwiMDz071QgXxvQ/exec', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: `data=${encodeURIComponent(JSON.stringify({ tickets }))}`
-        })
-        .then(() => {
-          document.getElementById('formWrapper').innerHTML = `
-            <h2>Thank you!</h2>
-            <p>Your ticket details have been submitted successfully.</p>
-            <p><strong>Total cost: £${total}</strong></p>
-<p><strong>Payment deadline: <span style='color: darkred;'>26th April</span></strong></p>
-            <p>Please make payment to the following account:</p>
-            <ul>
-              <li><strong>Account Name:</strong> RFU Club Travel</li>
-              <li><strong>Sort Code:</strong> 12-34-56</li>
-              <li><strong>Account Number:</strong> 12345678</li>
-              <li><strong>Reference:</strong> Your Name</li>
-            </ul>
-          `;
-        })
-        .catch((err) => {
-          alert('Something went wrong. Please try again later.');
-          console.error(err);
-        });
-      }
-    </script>
   </body>
 </html>
