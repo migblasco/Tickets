@@ -69,6 +69,13 @@
           padding-bottom: 20px;
         }
         input,
+        select,
+        button,
+        textarea {
+          font-size: 16px;
+        }
+      }
+        input,
         button,
         textarea {
           font-size: 16px;
@@ -216,19 +223,63 @@
         const thankYouText = [
           "Your ticket details have been submitted successfully.",
           "Payment deadline: 26th April",
-          "Total cost shown on screen.",
           "",
           "Bank Details:",
           "Account Name: Marlborough RFC",
           "Sort Code: 30-96-26",
           "Account Number: 34064960",
-          "Reference: Your Name"
+          "Reference: Your Name",
+          ""
         ];
 
         thankYouText.forEach(line => {
           doc.text(line, 10, y);
           y += 8;
         });
+
+        y += 6;
+        doc.setFontSize(12);
+        doc.text("Ticket Details:", 10, y);
+        y += 8;
+
+        const tickets = document.querySelectorAll('[data-ticket-index]');
+        tickets.forEach((ticketDiv, i) => {
+          const name = ticketDiv.querySelector(`[name='name${i}']`)?.value || '';
+          const ageFlag = ticketDiv.querySelector(`[name='ageFlag${i}']`)?.value;
+          const age = ticketDiv.querySelector(`[name='age${i}']`)?.value || '';
+          const responsible = ticketDiv.querySelector(`[name='responsible${i}']`)?.value || '';
+          const coach = ticketDiv.querySelector(`[name='coach${i}']`)?.value || '';
+
+          const line = `Ticket ${i + 1}: ${name}, ${ageFlag === 'Yes' ? 'Age: ' + age : 'Adult'}, Coach: ${coach}${ageFlag === 'Yes' && responsible ? ', Responsible: ' + responsible : ''}`;
+          doc.text(line, 10, y);
+          y += 8;
+        });
+
+        y += 8;
+        doc.setFontSize(12);
+        doc.text("Pricing Details:", 10, y);
+        y += 8;
+
+        let totalCost = 0;
+        tickets.forEach((ticketDiv, i) => {
+          const name = ticketDiv.querySelector(`[name='name${i}']`)?.value || '';
+          const ageFlag = ticketDiv.querySelector(`[name='ageFlag${i}']`)?.value;
+          const age = ticketDiv.querySelector(`[name='age${i}']`)?.value || '';
+          const responsible = ticketDiv.querySelector(`[name='responsible${i}']`)?.value || '';
+          const coach = ticketDiv.querySelector(`[name='coach${i}']`)?.value || '';
+          const ticketPrice = ageFlag === 'Yes' ? 15 : 70;
+          const coachPrice = coach === 'Yes' ? 20 : 0;
+          const ticketTotal = ticketPrice + coachPrice;
+          totalCost += ticketTotal;
+
+          const priceLine = `Ticket ${i + 1}: £${ticketPrice} (ticket) + £${coachPrice} (coach) = £${ticketTotal}`;
+          doc.text(priceLine, 10, y);
+          y += 8;
+        });
+
+        y += 4;
+        doc.setFontSize(13);
+        doc.text(`Grand Total: £${totalCost}`, 10, y);
 
         doc.save("ticket-summary.pdf");
       }
